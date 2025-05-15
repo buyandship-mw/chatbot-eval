@@ -1,0 +1,13 @@
+Use Relevant Hashtags Last sampling strategy at k=16 demonstrations.
+
+Relevant Hashtags Last  
+   - Ordered examples so those with hashtags most relevant to the query were placed closer to the end of the context. Relevance was determined by measuring overlap between example hashtags and query hashtags.  
+   - Rationale: The recency effect often causes language models to weigh recent examples more heavily. Placing relevant examples at the end could improve the model’s focus on the specific context of the query.  
+   - Finding: This strategy produced the highest F1 score, though the improvement was marginal (~0.02). It also performed best on average across multiple runs, likely due to the model’s sensitivity to the latter examples in the list.
+
+# The precision, recall and f1-score for the dataset-test evaluation and k demonstrations where k=8, 16, 24, 32
+ k |  pre  |  rec  |  f1
+ 8 | 0.638 | 0.918 | 0.727
+16 | 0.682 | 0.886 | 0.745
+24 | 0.679 | 0.856 | 0.732
+32 | 0.693 | 0.873 | 0.748
