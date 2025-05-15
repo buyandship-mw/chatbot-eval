@@ -28,9 +28,9 @@
             "#CustomerExperienceAndExpectations"
         ],
         "predicted": [
+            "#DesignAndUsabilityIssues",
             "#PerformanceAndFunctionality",
-            "#CustomerExperienceAndExpectations",
-            "#BatteryAndPowerIssues"
+            "#CustomerExperienceAndExpectations"
         ]
     },
     {
@@ -39,8 +39,7 @@
             "#PerformanceAndFunctionality"
         ],
         "predicted": [
-            "#PerformanceAndFunctionality",
-            "#CustomerExperienceAndExpectations"
+            "#PerformanceAndFunctionality"
         ]
     },
     {
@@ -97,7 +96,6 @@
         ],
         "predicted": [
             "#DesignAndUsabilityIssues",
-            "#PerformanceAndFunctionality",
             "#MaintenanceAndCleaning",
             "#CustomerExperienceAndExpectations"
         ]
@@ -108,7 +106,8 @@
             "#DesignAndUsabilityIssues"
         ],
         "predicted": [
-            "#DesignAndUsabilityIssues"
+            "#DesignAndUsabilityIssues",
+            "#PerformanceAndFunctionality"
         ]
     }
 ]

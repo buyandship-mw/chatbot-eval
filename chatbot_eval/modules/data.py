@@ -1,6 +1,5 @@
 import os
 import csv
-import random
 from collections import Counter
 
 from modules.io import read_from_json
@@ -16,9 +15,8 @@ def load_data() -> tuple:
     data_train = read_from_json(os.path.join(config_file, 'dataset-train.json'))
     data_test = read_from_json(os.path.join(config_file, 'dataset-dev.json'))
 
-    print(data_train[0])
-
     print('\nDataset Sizes: Train %i, Test %i\n' % (len(data_train), len(data_test)))
+    print(data_train[0] + "\n")
 
     return data_train, data_test
 
@@ -55,12 +53,6 @@ def print_hashtag_distribution(data) -> None:
     print("Hashtag distribution in training set (sorted by count):")
     for tag, count in hashtag_counter:
         print(f"{tag}: {count}")
-
-def sample_demonstrations(dataset, k=16):
-    """
-    Samples k random demonstrations from the dataset.
-    """
-    return random.sample(dataset, k)
 
 if __name__ == "__main__":
     # Load the data
