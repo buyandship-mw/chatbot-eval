@@ -2,7 +2,8 @@ from modules.io        import save_to_json
 from modules.data      import get_tags, print_hashtag_distribution
 from modules.loaders.json_loader import JSONDataLoader
 from modules.loaders.csv_loader import CSVDataLoader
-from modules.sampling import sample_demonstrations, linearize_demonstrations
+from modules.sampling import sample_demonstrations
+from modules.prompting import linearize_demonstrations
 from modules.runner    import run_tests
 from modules.metrics   import evaluate_results
 from modules.reporting import print_summary, print_metrics

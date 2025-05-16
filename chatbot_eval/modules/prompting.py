@@ -1,4 +1,14 @@
-import re
+def linearize_demonstrations(demonstrations):
+    """
+    Converts a list of demonstration examples into a formatted text string.
+    """
+    prompt_text = ""
+    for demo in demonstrations:
+        prompt_text += f"Conversation:\n {demo.text}\n"
+        hashtags = ', '.join(demo.expected) if demo.expected else None
+        prompt_text += f"Hashtags: {hashtags}\n\n"
+    print(prompt_text)
+    return prompt_text
 
 def construct_prompt(demonstrations_text, conversation, tag_list):
     """
@@ -23,25 +33,3 @@ def construct_prompt(demonstrations_text, conversation, tag_list):
     )
     print(prompt)
     return prompt
-
-def extract_valid_hashtags(response, tag_list):
-    """
-    Extracts valid hashtags from the model's response.
-    
-    Parameters:
-        response (str): The raw response string from the model.
-        tag_list (list): The list of valid hashtags.
-    
-    Returns:
-        list: A list of valid hashtags extracted from the response.
-    """
-    # Normalize the response by removing extra spaces and splitting into lines
-    response = response.strip()
-    
-    # Use a regular expression to extract all words starting with '#'
-    extracted_tags = re.findall(r"#\w+", response)
-    
-    # Filter the extracted tags to include only those in the valid tag list
-    valid_tags = [tag for tag in extracted_tags if tag in tag_list]
-    
-    return valid_tags
