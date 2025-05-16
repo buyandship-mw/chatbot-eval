@@ -10,6 +10,6 @@ To run the app:
 
 To test modules on their own:
 1. `cd` into the root directory
-2. Run `python3 -m modules.<name_of_module>` (example: `python -m modules.rag`)
+2. Run `python -m modules.<name_of_module>` (example: `python -m modules.rag`)
 
 If a script takes too long to run, CTRL-C out and re-run the script.
