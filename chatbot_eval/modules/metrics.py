@@ -51,10 +51,16 @@ def evaluate_results(results):
             else:
                 fn += max(0, true_counts[label] - predicted_counts[label])
 
-        # Precision, recall, and F1 for this result
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-        f1 = (2 * tp) / (2 * tp + fp + fn) if (2 * tp + fp + fn) > 0 else 0
+        # Precision, recall, and F1 for this result  
+        if not true_labels and not predicted_labels: # If both empty -> perfect match
+            precision = 1.0
+            recall = 1.0
+            f1 = 1.0
+        else:
+            precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+            recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+            f1 = (2 * tp) / (2 * tp + fp + fn) if (2 * tp + fp + fn) > 0 else 0
+
 
         # Accumulate metrics
         total_precision += precision
