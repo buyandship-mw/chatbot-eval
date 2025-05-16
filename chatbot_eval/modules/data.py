@@ -2,23 +2,19 @@ import os
 import csv
 from collections import Counter
 
-from modules.io import read_from_json
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
+from typing import List, Tuple, Optional
 
-def load_data() -> tuple:
-    """
-    Load the dataset from JSON files.
-    """
-    # Define the path to the data directory
-    config_file = os.path.join(os.path.dirname(__file__), "../data/")
+@dataclass
+class DataItem:
+    text: str
+    expected: Optional[str] = None
 
-    # Load training data
-    data_train = read_from_json(os.path.join(config_file, 'dataset-train.json'))
-    data_test = read_from_json(os.path.join(config_file, 'dataset-dev.json'))
-
-    print('\nDataset Sizes: Train %i, Test %i\n' % (len(data_train), len(data_test)))
-    print(data_train[0] + "\n")
-
-    return data_train, data_test
+class DataLoader(ABC):
+    @abstractmethod
+    def load_data(self) -> Tuple[List[DataItem], List[DataItem]]:
+        ...
 
 # Could modify this to extract tags from training data instead
 def get_tags(csv_filename: str = "valid_tags.csv") -> list:
@@ -51,7 +47,7 @@ def print_hashtag_distribution(data) -> None:
     """
     hashtag_counter = Counter()
     for item in data:
-        hashtag_counter.update(item['expected'])
+        hashtag_counter.update(item.expected)
     hashtag_counter = hashtag_counter.most_common()
 
     print("Hashtag distribution in training set (sorted by count):")

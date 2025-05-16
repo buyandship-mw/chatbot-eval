@@ -28,7 +28,6 @@
             "#CustomerExperienceAndExpectations"
         ],
         "predicted": [
-            "#DesignAndUsabilityIssues",
             "#PerformanceAndFunctionality",
             "#CustomerExperienceAndExpectations"
         ]
@@ -71,8 +70,7 @@
             "#CustomerExperienceAndExpectations"
         ],
         "predicted": [
-            "#PerformanceAndFunctionality",
-            "#CustomerExperienceAndExpectations"
+            "#PerformanceAndFunctionality"
         ]
     },
     {
@@ -107,7 +105,7 @@
         ],
         "predicted": [
             "#DesignAndUsabilityIssues",
-            "#PerformanceAndFunctionality"
+            "#CustomerExperienceAndExpectations"
         ]
     }
 ]

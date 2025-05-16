@@ -12,8 +12,8 @@ def linearize_demonstrations(demonstrations):
     """
     prompt_text = ""
     for demo in demonstrations:
-        prompt_text += f"Review: {demo['text']}\n"
-        prompt_text += f"Hashtags: {', '.join(demo['expected'])}\n\n"
+        prompt_text += f"Review: {demo.text}\n"
+        prompt_text += f"Hashtags: {', '.join(demo.expected)}\n\n"
     return prompt_text
 
 def relevant_hashtags_last(demonstrations, query_hashtags):
