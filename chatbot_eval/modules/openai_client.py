@@ -13,6 +13,14 @@ model = config['openai']['model']
 client = OpenAI(api_key=api_key)
 
 def prompt_model(prompt, temp=1.0):
+    """
+    Sends a prompt to the OpenAI model and returns the response.
+    Args:
+        prompt (str): The prompt to send to the model.
+        temp (float): The temperature for the model's response.
+    Returns:
+        str: The model's response.
+    """
     completion = client.chat.completions.create(
         model=model,
         store=True,

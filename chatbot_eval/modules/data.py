@@ -22,6 +22,10 @@ def load_data() -> tuple:
 
 # Could modify this to extract tags from training data instead
 def get_tags(csv_filename: str = "valid_tags.csv") -> list:
+    """
+    Load the list of valid hashtags from a CSV file.
+    The CSV file should contain one hashtag per line.
+    """
     # build a path to tags.csv in the same directory as this script
     base_dir = os.path.join(os.path.dirname(__file__), "../config/")
     path = os.path.join(base_dir, csv_filename)
