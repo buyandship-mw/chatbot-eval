@@ -5,7 +5,6 @@ from modules.data import DataItem, DataLoader
 from modules.io import read_from_json  # update this import as needed
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-print("PROJECT_ROOT:", PROJECT_ROOT)
 
 class JSONDataLoader(DataLoader):
     def __init__(self, data_dir: str = "data"):
