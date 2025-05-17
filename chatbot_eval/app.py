@@ -11,11 +11,13 @@ from modules.reporting import print_summary, print_metrics
 def main():
     # 1️⃣ Setup
     loader = CSVDataLoader()
-    data_train, data_test = loader.load_data()
+    data_train = loader.load("dataset-train.csv")
+    data_test = loader.load("dataset-test.csv")
+    
     tags = get_tags()
     print(f"Valid hashtags: {tags}\n")
     print_hashtag_distribution(data_train)
-    print()
+    print(f"Train: {len(data_train)}  Test: {len(data_test)}\nExample: {data_train[0]}\n")
 
     # 2️⃣ Prepare demos
     demos = sample_demonstrations(data_train)

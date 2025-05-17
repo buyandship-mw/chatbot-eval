@@ -1,6 +1,7 @@
 # modules/data.py (continued)
 
 import os
+from typing import List
 from modules.data import DataItem, DataLoader
 from modules.io import read_from_json  # update this import as needed
 
@@ -8,15 +9,14 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
 class JSONDataLoader(DataLoader):
     def __init__(self, data_dir: str = "data"):
-        self.data_dir = os.path.join(PROJECT_ROOT, data_dir)
+        self.base = os.path.join(PROJECT_ROOT, data_dir)
 
-    def load_data(self):
-        raw_train = read_from_json(os.path.join(self.data_dir, 'dataset-train.json'))
-        raw_test  = read_from_json(os.path.join(self.data_dir, 'dataset-dev.json'))
-
-        ALLOWED_KEYS = {'text', 'expected'}
-        train = [DataItem(**{k: v for k, v in d.items() if k in ALLOWED_KEYS}) for d in raw_train]
-        test  = [DataItem(**{k: v for k, v in d.items() if k in ALLOWED_KEYS}) for d in raw_test]
-
-        print(f"Train: {len(train)}  Test: {len(test)}\nExample: {train[0]}\n")
-        return train, test
+    def load(self, filename: str) -> List[DataItem]:
+        path = os.path.join(self.base, filename)
+        raw = read_from_json(path)
+        # drop any extra keys
+        allowed = {'text', 'expected'}
+        return [
+            DataItem(**{k: v for k, v in entry.items() if k in allowed})
+            for entry in raw
+        ]

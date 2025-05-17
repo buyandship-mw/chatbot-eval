@@ -97,7 +97,7 @@ conversation_created_hkt,conversation_id,user_member_id,conversation_link,conver
 [2025-05-13 11:23:01] bot: Great. Now we will look for the information of the order number 907107085125.
 [2025-05-13 12:11:35] admin: 您好  該批次尚有部分貨件因清關問題未能如期到港。我們預計本週到港，到港後倉庫會優先處理這批次貨件。感謝閣下耐心等待。
 [2025-05-13 14:33:17] user: 明白，謝謝
-[2025-05-13 15:14:36] admin: 不客氣",2,2,Critical Failure,#api_failure,你好，我見到907107085125預計到香港係10/5，但依家仲未到，可以幫忙check下嗎？,"[2025-05-13 11:22:31] user:你好，我見到907107085125預計到香港係10/5，但依家仲未到，可以幫忙check下嗎？
+[2025-05-13 15:14:36] admin: 不客氣",2,2,Critical Failure,#APIFailureNoEscalation,你好，我見到907107085125預計到香港係10/5，但依家仲未到，可以幫忙check下嗎？,"[2025-05-13 11:22:31] user:你好，我見到907107085125預計到香港係10/5，但依家仲未到，可以幫忙check下嗎？
 [2025-05-13 11:22:42] bot: 好的，讓我為你查詢一下。
 [2025-05-13 11:23:01] bot: Great. Now we will look for the information of the order number 907107085125.
 [2025-05-13 12:11:35] admin: 您好  該批次尚有部分貨件因清關問題未能如期到港。我們預計本週到港，到港後倉庫會優先處理這批次貨件。感謝閣下耐心等待。

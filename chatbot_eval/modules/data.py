@@ -13,7 +13,10 @@ class DataItem:
 
 class DataLoader(ABC):
     @abstractmethod
-    def load_data(self) -> Tuple[List[DataItem], List[DataItem]]:
+    def load(self, filename: str) -> List[DataItem]:
+        """
+        Load items from `<data_dir>/<filename>` into a list of DataItem.
+        """
         ...
 
 # Could modify this to extract tags from training data instead
