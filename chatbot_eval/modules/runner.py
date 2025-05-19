@@ -2,6 +2,8 @@
 from modules.openai_client import prompt_model
 from modules.prompting     import construct_prompt
 
+import re
+
 def process_example(idx, test_data, demos_text, tags):
     """
     Run one test example through the model.
