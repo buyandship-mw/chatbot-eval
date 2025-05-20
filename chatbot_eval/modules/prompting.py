@@ -1,5 +1,5 @@
 import re
-from modules.openai_client import prompt_model
+from modules.clients.openai_client_azure import prompt_model
 
 def linearize_demonstrations_pass_fail(demonstrations):
     """

@@ -4,7 +4,7 @@ from openai import OpenAI
 
 # Read API key from config file
 config = configparser.ConfigParser()
-config_file = os.path.join(os.path.dirname(__file__), "../config/config.ini")
+config_file = os.path.join(os.path.dirname(__file__), "../../config/config.ini")
 config.read(config_file)
 api_key = config['openai']['api_key']
 model = config['openai']['model']
