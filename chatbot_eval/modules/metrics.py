@@ -1,84 +1,128 @@
 from modules.io import save_to_json
 
-
 def evaluator_metrics(results):
     """
-    Evaluates the results of the experiment by calculating overall precision, recall, and F1 score.
+    Evaluates the results of the experiment by calculating overall precision, recall, and F1 score for:
+    - Pass/Fail classification.
+    - Tags classification for failed conversations.
+    
     Metrics are calculated per instance and then averaged across all results.
     
     Parameters:
-        results (list): The list of results. Each result object should contain a list of true and a list of predicted labels.
+        results (list): The list of results. Each result object should contain a list of true and predicted labels.
         
     Returns:
-        dict: A dictionary containing overall precision, recall, and F1 score.
+        dict: A dictionary containing precision, recall, and F1 scores for both pass/fail and tag classification.
     """
-    total_precision = 0
-    total_recall = 0
-    total_f1 = 0
+    
+    # Initialize metrics for pass/fail classification
+    total_pass_fail_precision = 0
+    total_pass_fail_recall = 0
+    total_pass_fail_f1 = 0
+
+    # Initialize metrics for tag classification
+    total_tag_precision = 0
+    total_tag_recall = 0
+    total_tag_f1 = 0
     
     for result in results:
-        true_labels = result["true_labels"]
-        predicted_labels = result["predicted"]
+        # Extract true labels and predicted labels for pass/fail
+        true_pass_fail = result["pass_fail"]
+        predicted_pass_fail = result["predicted_pass_fail"]
         
-        # Count true positives, false positives, and false negatives
-        tp = 0  # True positives
-        fp = 0  # False positives
-        fn = 0  # False negatives
+        # Extract true tags and predicted tags for tag classification
+        true_tags = result["tags"]
+        predicted_tags = result["predicted_tags"]
 
-        # Count occurrences in true and predicted lists
-        true_counts = {}
-        predicted_counts = {}
+        # --- Pass/Fail Classification Metrics ---
+        tp_pass_fail = 0  # True positives for pass/fail
+        fp_pass_fail = 0  # False positives for pass/fail
+        fn_pass_fail = 0  # False negatives for pass/fail
 
-        for label in true_labels:
-            true_counts[label] = true_counts.get(label, 0) + 1
-
-        for label in predicted_labels:
-            predicted_counts[label] = predicted_counts.get(label, 0) + 1
-
-        # Calculate true positives
-        for label in predicted_counts:
-            if label in true_counts:
-                tp += min(predicted_counts[label], true_counts[label])
-
-        # Calculate false positives
-        for label in predicted_counts:
-            if label not in true_counts:
-                fp += predicted_counts[label]
-            else:
-                fp += max(0, predicted_counts[label] - true_counts[label])
-
-        # Calculate false negatives
-        for label in true_counts:
-            if label not in predicted_counts:
-                fn += true_counts[label]
-            else:
-                fn += max(0, true_counts[label] - predicted_counts[label])
-
-        # Precision, recall, and F1 for this result  
-        if not true_labels and not predicted_labels: # If both empty -> perfect match
-            precision = 1.0
-            recall = 1.0
-            f1 = 1.0
+        if predicted_pass_fail == true_pass_fail:
+            tp_pass_fail = 1
         else:
-            precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-            recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-            f1 = (2 * tp) / (2 * tp + fp + fn) if (2 * tp + fp + fn) > 0 else 0
+            if true_pass_fail == "Pass":
+                fn_pass_fail = 1
+            elif true_pass_fail == "Fail":
+                fp_pass_fail = 1
+        
+        # Precision, recall, and F1 for pass/fail
+        precision_pass_fail = tp_pass_fail / (tp_pass_fail + fp_pass_fail) if (tp_pass_fail + fp_pass_fail) > 0 else 0
+        recall_pass_fail = tp_pass_fail / (tp_pass_fail + fn_pass_fail) if (tp_pass_fail + fn_pass_fail) > 0 else 0
+        f1_pass_fail = (2 * tp_pass_fail) / (2 * tp_pass_fail + fp_pass_fail + fn_pass_fail) if (2 * tp_pass_fail + fp_pass_fail + fn_pass_fail) > 0 else 0
+        
+        total_pass_fail_precision += precision_pass_fail
+        total_pass_fail_recall += recall_pass_fail
+        total_pass_fail_f1 += f1_pass_fail
 
+        # --- Tag Classification Metrics (only for failed conversations) ---
+        if true_pass_fail == "Fail":
+            # Count true positives, false positives, and false negatives for tags
+            tp_tags = 0
+            fp_tags = 0
+            fn_tags = 0
+            
+            true_counts = {}
+            predicted_counts = {}
+            
+            # Count occurrences in true and predicted tag lists
+            for tag in true_tags:
+                true_counts[tag] = true_counts.get(tag, 0) + 1
+            for tag in predicted_tags:
+                predicted_counts[tag] = predicted_counts.get(tag, 0) + 1
 
-        # Accumulate metrics
-        total_precision += precision
-        total_recall += recall
-        total_f1 += f1
+            # Calculate true positives
+            for tag in predicted_counts:
+                if tag in true_counts:
+                    tp_tags += min(predicted_counts[tag], true_counts[tag])
+
+            # Calculate false positives
+            for tag in predicted_counts:
+                if tag not in true_counts:
+                    fp_tags += predicted_counts[tag]
+                else:
+                    fp_tags += max(0, predicted_counts[tag] - true_counts[tag])
+
+            # Calculate false negatives
+            for tag in true_counts:
+                if tag not in predicted_counts:
+                    fn_tags += true_counts[tag]
+                else:
+                    fn_tags += max(0, true_counts[tag] - predicted_counts[tag])
+
+            # Precision, recall, and F1 for tag classification
+            precision_tags = tp_tags / (tp_tags + fp_tags) if (tp_tags + fp_tags) > 0 else 0
+            recall_tags = tp_tags / (tp_tags + fn_tags) if (tp_tags + fn_tags) > 0 else 0
+            f1_tags = (2 * tp_tags) / (2 * tp_tags + fp_tags + fn_tags) if (2 * tp_tags + fp_tags + fn_tags) > 0 else 0
+
+            total_tag_precision += precision_tags
+            total_tag_recall += recall_tags
+            total_tag_f1 += f1_tags
     
-    # Calculate averages
+    # Calculate averages for pass/fail classification
     n = len(results)
-    res = {
-        "precision": total_precision / n,
-        "recall": total_recall / n,
-        "f1": total_f1 / n,
+    pass_fail_metrics = {
+        "precision": total_pass_fail_precision / n,
+        "recall": total_pass_fail_recall / n,
+        "f1": total_pass_fail_f1 / n,
     }
-    save_to_json("evaluator_metrics.json", res)
-    return res
+    
+    # Calculate averages for tag classification (failures only)
+    tag_metrics = {
+        "precision": total_tag_precision / n,
+        "recall": total_tag_recall / n,
+        "f1": total_tag_f1 / n,
+    }
+
+    # Save to JSON
+    save_to_json("pass_fail_metrics.json", pass_fail_metrics)
+    save_to_json("tag_metrics.json", tag_metrics)
+
+    return {
+        "pass_fail_metrics": pass_fail_metrics,
+        "tag_metrics": tag_metrics,
+    }
 
 def chatbot_metrics(results):
     pass
