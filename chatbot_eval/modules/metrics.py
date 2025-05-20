@@ -2,126 +2,104 @@ from modules.io import save_to_json
 
 def evaluator_metrics(results):
     """
-    Evaluates the results of the experiment by calculating overall precision, recall, and F1 score for:
-    - Pass/Fail classification.
-    - Tags classification for failed conversations.
-    
-    Metrics are calculated per instance and then averaged across all results.
+    Evaluates the results of the experiment by calculating precision, recall, and F1 score for:
+      - Pass/Fail classification (macro-averaged over all examples)
+      - Tag classification (macro-averaged over failure examples; perfect if no failures)
     
     Parameters:
-        results (list): The list of results. Each result object should contain a list of true and predicted labels.
+        results (list): Each result is a dict with keys:
+            "pass_fail"            : str, ground-truth "Pass" or "Fail"
+            "predicted_pass_fail"  : str, predicted "Pass"/"Fail"/"Unknown"
+            "tags"                 : list[str], ground-truth tags (empty list if none)
+            "predicted_tags"       : list[str], predicted tags
         
     Returns:
-        dict: A dictionary containing precision, recall, and F1 scores for both pass/fail and tag classification.
+        dict: {
+            "pass_fail_metrics": {"precision":…, "recall":…, "f1":…},
+            "tag_metrics"      : {"precision":…, "recall":…, "f1":…}
+        }
     """
-    
-    # Initialize metrics for pass/fail classification
-    total_pass_fail_precision = 0
-    total_pass_fail_recall = 0
-    total_pass_fail_f1 = 0
+    total_pf_p = total_pf_r = total_pf_f1 = 0.0
+    total_tag_p = total_tag_r = total_tag_f1 = 0.0
+    num_examples = len(results)
+    num_failures = 0
 
-    # Initialize metrics for tag classification
-    total_tag_precision = 0
-    total_tag_recall = 0
-    total_tag_f1 = 0
-    
     for result in results:
-        # Extract true labels and predicted labels for pass/fail
-        true_pass_fail = result["pass_fail"]
-        predicted_pass_fail = result["predicted_pass_fail"]
-        
-        # Extract true tags and predicted tags for tag classification
-        true_tags = result["tags"]
-        predicted_tags = result["predicted_tags"]
+        # --- Pass/Fail metrics (macro over all) ---
+        true_pf = result["pass_fail"]
+        pred_pf = result["predicted_pass_fail"]
 
-        # --- Pass/Fail Classification Metrics ---
-        tp_pass_fail = 0  # True positives for pass/fail
-        fp_pass_fail = 0  # False positives for pass/fail
-        fn_pass_fail = 0  # False negatives for pass/fail
+        tp_pf = 1 if pred_pf == true_pf else 0
+        fp_pf = 1 if (pred_pf == "Fail" and true_pf != "Fail") else 0
+        fn_pf = 1 if (pred_pf == "Pass" and true_pf != "Pass") else 0
 
-        if predicted_pass_fail == true_pass_fail:
-            tp_pass_fail = 1
-        else:
-            if true_pass_fail == "Pass":
-                fn_pass_fail = 1
-            elif true_pass_fail == "Fail":
-                fp_pass_fail = 1
-        
-        # Precision, recall, and F1 for pass/fail
-        precision_pass_fail = tp_pass_fail / (tp_pass_fail + fp_pass_fail) if (tp_pass_fail + fp_pass_fail) > 0 else 0
-        recall_pass_fail = tp_pass_fail / (tp_pass_fail + fn_pass_fail) if (tp_pass_fail + fn_pass_fail) > 0 else 0
-        f1_pass_fail = (2 * tp_pass_fail) / (2 * tp_pass_fail + fp_pass_fail + fn_pass_fail) if (2 * tp_pass_fail + fp_pass_fail + fn_pass_fail) > 0 else 0
-        
-        total_pass_fail_precision += precision_pass_fail
-        total_pass_fail_recall += recall_pass_fail
-        total_pass_fail_f1 += f1_pass_fail
+        # precision / recall / f1 for this example
+        p_pf = tp_pf / (tp_pf + fp_pf) if (tp_pf + fp_pf) > 0 else 0.0
+        r_pf = tp_pf / (tp_pf + fn_pf) if (tp_pf + fn_pf) > 0 else 0.0
+        f1_pf = (2 * tp_pf) / (2 * tp_pf + fp_pf + fn_pf) if (2 * tp_pf + fp_pf + fn_pf) > 0 else 0.0
 
-        # --- Tag Classification Metrics (only for failed conversations) ---
-        if true_pass_fail == "Fail":
-            # Count true positives, false positives, and false negatives for tags
-            tp_tags = 0
-            fp_tags = 0
-            fn_tags = 0
-            
+        total_pf_p  += p_pf
+        total_pf_r  += r_pf
+        total_pf_f1 += f1_pf
+
+        # --- Tag metrics only for failures ---
+        if true_pf == "Fail":
+            num_failures += 1
+            true_tags      = result["tags"]
+            predicted_tags = result["predicted_tags"]
+
+            # count TP/FP/FN
+            tp_t = fp_t = fn_t = 0
             true_counts = {}
-            predicted_counts = {}
-            
-            # Count occurrences in true and predicted tag lists
-            for tag in true_tags:
-                true_counts[tag] = true_counts.get(tag, 0) + 1
-            for tag in predicted_tags:
-                predicted_counts[tag] = predicted_counts.get(tag, 0) + 1
+            pred_counts = {}
+            for t in true_tags:      true_counts[t] = true_counts.get(t, 0) + 1
+            for t in predicted_tags: pred_counts[t] = pred_counts.get(t, 0) + 1
 
-            # Calculate true positives
-            for tag in predicted_counts:
+            for tag, cnt in pred_counts.items():
                 if tag in true_counts:
-                    tp_tags += min(predicted_counts[tag], true_counts[tag])
-
-            # Calculate false positives
-            for tag in predicted_counts:
-                if tag not in true_counts:
-                    fp_tags += predicted_counts[tag]
+                    tp_t += min(cnt, true_counts[tag])
+                    fp_t += max(0, cnt - true_counts[tag])
                 else:
-                    fp_tags += max(0, predicted_counts[tag] - true_counts[tag])
+                    fp_t += cnt
 
-            # Calculate false negatives
-            for tag in true_counts:
-                if tag not in predicted_counts:
-                    fn_tags += true_counts[tag]
+            for tag, cnt in true_counts.items():
+                if tag not in pred_counts:
+                    fn_t += cnt
                 else:
-                    fn_tags += max(0, true_counts[tag] - predicted_counts[tag])
+                    fn_t += max(0, cnt - pred_counts[tag])
 
-            # Precision, recall, and F1 for tag classification
-            precision_tags = tp_tags / (tp_tags + fp_tags) if (tp_tags + fp_tags) > 0 else 0
-            recall_tags = tp_tags / (tp_tags + fn_tags) if (tp_tags + fn_tags) > 0 else 0
-            f1_tags = (2 * tp_tags) / (2 * tp_tags + fp_tags + fn_tags) if (2 * tp_tags + fp_tags + fn_tags) > 0 else 0
+            p_t = tp_t / (tp_t + fp_t) if (tp_t + fp_t) > 0 else 0.0
+            r_t = tp_t / (tp_t + fn_t) if (tp_t + fn_t) > 0 else 0.0
+            f1_t = (2 * tp_t) / (2 * tp_t + fp_t + fn_t) if (2 * tp_t + fp_t + fn_t) > 0 else 0.0
 
-            total_tag_precision += precision_tags
-            total_tag_recall += recall_tags
-            total_tag_f1 += f1_tags
-    
-    # Calculate averages for pass/fail classification
-    n = len(results)
-    pass_fail_metrics = {
-        "precision": total_pass_fail_precision / n,
-        "recall": total_pass_fail_recall / n,
-        "f1": total_pass_fail_f1 / n,
-    }
-    
-    # Calculate averages for tag classification (failures only)
-    tag_metrics = {
-        "precision": total_tag_precision / n,
-        "recall": total_tag_recall / n,
-        "f1": total_tag_f1 / n,
+            total_tag_p  += p_t
+            total_tag_r  += r_t
+            total_tag_f1 += f1_t
+
+    # Average pass/fail over all examples
+    pf_metrics = {
+        "precision": total_pf_p  / num_examples if num_examples > 0 else 0.0,
+        "recall"   : total_pf_r  / num_examples if num_examples > 0 else 0.0,
+        "f1"       : total_pf_f1 / num_examples if num_examples > 0 else 0.0,
     }
 
-    # Save to JSON
-    save_to_json("pass_fail_metrics.json", pass_fail_metrics)
+    # Average tag metrics over failures only (or perfect if none)
+    if num_failures > 0:
+        tag_metrics = {
+            "precision": total_tag_p  / num_failures,
+            "recall"   : total_tag_r  / num_failures,
+            "f1"       : total_tag_f1 / num_failures,
+        }
+    else:
+        tag_metrics = {"precision": 1.0, "recall": 1.0, "f1": 1.0}
+
+    # Persist to disk
+    save_to_json("pass_fail_metrics.json", pf_metrics)
     save_to_json("tag_metrics.json", tag_metrics)
 
     return {
-        "pass_fail_metrics": pass_fail_metrics,
-        "tag_metrics": tag_metrics,
+        "pass_fail_metrics": pf_metrics,
+        "tag_metrics"      : tag_metrics,
     }
 
 def print_evaluator_metrics(metrics):
