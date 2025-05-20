@@ -23,9 +23,9 @@ class CSVDataLoader(DataLoader):
         with open(path, newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                text = row.get(self.text_col, "")
-                raw = row.get(self.label_col, "")
-                pass_fail = row.get(self.pass_fail_col, "")
+                text = row.get(self.text_col)
+                raw = row.get(self.label_col)
+                pass_fail = row.get(self.pass_fail_col)
                 
                 if raw and raw.strip():
                     tags = [t.strip() for t in raw.split(',') if t.strip()]
