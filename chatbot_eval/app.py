@@ -1,12 +1,11 @@
-from modules.io        import save_to_json
+from modules.io        import read_from_json, save_to_json
 from modules.data      import get_tags, print_hashtag_distribution
-from modules.loaders.json_loader import JSONDataLoader
 from modules.loaders.csv_loader import CSVDataLoader
 from modules.sampling import sample_demonstrations
 from modules.prompting import linearize_demonstrations
 from modules.runner    import run_tests
-from modules.metrics   import evaluate_results
-from modules.reporting import print_summary, print_metrics
+from modules.metrics   import evaluator_metrics
+from modules.reporting import print_metrics
 
 def main():
     # 1️⃣ Setup
@@ -24,15 +23,16 @@ def main():
     demos_text = linearize_demonstrations(demos)
 
     # 3️⃣ Run the model on all test examples
-    results, errors = run_tests(data_test, demos_text, tags)
+    res, errors = run_tests(data_test, demos_text, tags)
 
     # 4️⃣ Persist
-    save_to_json("results.json", results)
+    save_to_json("results.json", res)
     save_to_json("errors.json", errors)
+    print(f"\nExperiment completed. {len(res)} results saved to 'results.json'.\n")
 
     # 5️⃣ Report
-    print_summary(len(results), "results.json")
-    metrics = evaluate_results(results)
+    results = read_from_json("results.json")
+    metrics = evaluator_metrics(results)
     print_metrics(metrics)
 
 if __name__ == "__main__":

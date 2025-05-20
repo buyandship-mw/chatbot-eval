@@ -1,4 +1,7 @@
-def evaluate_results(results):
+from modules.io import save_to_json
+
+
+def evaluator_metrics(results):
     """
     Evaluates the results of the experiment by calculating overall precision, recall, and F1 score.
     Metrics are calculated per instance and then averaged across all results.
@@ -69,8 +72,13 @@ def evaluate_results(results):
     
     # Calculate averages
     n = len(results)
-    return {
+    res = {
         "precision": total_precision / n,
         "recall": total_recall / n,
         "f1": total_f1 / n,
     }
+    save_to_json("evaluator_metrics.json", res)
+    return res
+
+def chatbot_metrics(results):
+    pass

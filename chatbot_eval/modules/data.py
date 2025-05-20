@@ -57,14 +57,14 @@ def print_hashtag_distribution(data) -> None:
     for tag, count in hashtag_counter:
         print(f"{tag}: {count}")
 
-if __name__ == "__main__":
-    # Load the data
-    data_train, data_test = load_data()
+# if __name__ == "__main__":
+#     # Load the data
+#     data_train, data_test = load_data()
 
-    # Get the list of valid hashtags
-    tags = get_tags()
-    print(f"Valid hashtags: {tags}\n")
+#     # Get the list of valid hashtags
+#     tags = get_tags()
+#     print(f"Valid hashtags: {tags}\n")
 
-    # Print the distribution of hashtags in the training set
-    print_hashtag_distribution(data_train)
+#     # Print the distribution of hashtags in the training set
+#     print_hashtag_distribution(data_train)
 
