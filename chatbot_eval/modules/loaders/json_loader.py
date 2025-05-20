@@ -14,8 +14,9 @@ class JSONDataLoader(DataLoader):
     def load(self, filename: str) -> List[DataItem]:
         path = os.path.join(self.base, filename)
         raw = read_from_json(path)
+        
         # drop any extra keys
-        allowed = {'text', 'expected'}
+        allowed = {'text', 'expected', 'pass_fail'}  # Added pass_fail
         return [
             DataItem(**{k: v for k, v in entry.items() if k in allowed})
             for entry in raw

@@ -1,5 +1,5 @@
 from modules.io        import read_from_json, save_to_json
-from modules.data      import get_tags, print_hashtag_distribution
+from modules.data      import get_tags, print_failure_distribution, print_hashtag_distribution
 from modules.loaders.csv_loader import CSVDataLoader
 from modules.sampling import sample_demonstrations
 from modules.prompting import linearize_demonstrations
@@ -12,12 +12,16 @@ def main():
     loader = CSVDataLoader()
     data_train = loader.load("dataset-train.csv")
     data_test = loader.load("dataset-test.csv")
+    print(f"Loaded {len(data_train)} demonstrations and {len(data_test)} test examples.")
+    print(f"Example: {data_train[0]}\n")
     
     tags = get_tags()
     print(f"Valid hashtags: {tags}\n")
-    print_hashtag_distribution(data_train)
-    print(f"Train: {len(data_train)}  Test: {len(data_test)}\nExample: {data_train[0]}\n")
 
+    print("Distribution of demonstrations in dataset:")
+    print_failure_distribution(data_train)
+    print_hashtag_distribution(data_train)
+    
     # 2️⃣ Prepare demos
     demos = sample_demonstrations(data_train)
     demos_text = linearize_demonstrations(demos)

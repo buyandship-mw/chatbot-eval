@@ -9,6 +9,7 @@ from typing import List, Tuple, Optional
 @dataclass
 class DataItem:
     text: str
+    pass_fail: Optional[str] = None
     expected: Optional[str] = None
 
 class DataLoader(ABC):
@@ -41,19 +42,35 @@ def get_tags(csv_filename: str = "valid_tags.csv") -> list:
             tags.append(row[0].strip())
     return tags
 
+def print_failure_distribution(data) -> None:
+    """
+    Prints the distribution of pass/fail statuses in the dataset in descending order.
+    
+    Expects the data to be a list of DataItem objects with a 'pass_fail' attribute.
+    """
+    pass_fail_counter = Counter()
+    for item in data:
+        pass_fail_counter.update([item.pass_fail])  # Count occurrences of pass/fail
+
+    pass_fail_counter = pass_fail_counter.most_common()
+
+    print("Pass/Fail distribution in dataset (sorted by count):")
+    for status, count in pass_fail_counter:
+        print(f"{status}: {count}")
+
 def print_hashtag_distribution(data) -> None:
     """
     Prints the distribution of hashtags in the dataset in descending order.
     
-    Expects the data to be a list of dictionaries with an 'expected' key.
-    Each dictionary should contain a list of hashtags under the 'expected' key.
+    Expects the data to be a list of DataItem objects with a 'expected' attribute.
+    The attribute should contain a list of hashtags.
     """
     hashtag_counter = Counter()
     for item in data:
         hashtag_counter.update(item.expected)
     hashtag_counter = hashtag_counter.most_common()
 
-    print("Hashtag distribution in training set (sorted by count):")
+    print("Hashtag distribution in dataset (sorted by count):")
     for tag, count in hashtag_counter:
         print(f"{tag}: {count}")
 
