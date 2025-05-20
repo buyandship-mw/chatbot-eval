@@ -3,7 +3,7 @@ from modules.data      import get_tags, print_failure_distribution, print_hashta
 from modules.loaders.csv_loader import CSVDataLoader
 from modules.sampling import sample_demonstrations
 from modules.runner    import run_tests
-from modules.metrics   import evaluator_metrics, print_evaluator_metrics
+from modules.metrics   import evaluator_metrics, chatbot_metrics, print_evaluator_metrics, print_chatbot_metrics
 
 def main():
     # Load data
@@ -20,9 +20,10 @@ def main():
     tags = get_tags()
     print(f"Valid hashtags: {tags}\n")
 
-    print("Distribution of demonstrations in dataset:")
+    print("Analyzing demonstrations data...")
     print_failure_distribution(demos)
     print_hashtag_distribution(demos, tags)
+    print()
 
     # Test evaluator
     # run_tests(test_data, demos, tags)
@@ -31,6 +32,9 @@ def main():
     results = read_from_json("results.json")
     metrics = evaluator_metrics(results)
     print_evaluator_metrics(metrics)
+    print()
+    chatbot_met = chatbot_metrics(results)
+    print_chatbot_metrics(chatbot_met)
 
 if __name__ == "__main__":
     main()

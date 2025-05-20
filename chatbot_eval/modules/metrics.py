@@ -1,3 +1,4 @@
+from collections import Counter
 from modules.io import save_to_json
 
 def evaluator_metrics(results):
@@ -102,6 +103,56 @@ def evaluator_metrics(results):
         "tag_metrics"      : tag_metrics,
     }
 
+def chatbot_metrics(results):
+    """
+    Computes chatbot performance metrics, assuming all predictions are 'Pass' or 'Fail'.
+    
+    Parameters:
+        results (list): Each result dict must contain:
+            - "predicted_pass_fail": str, either "Pass" or "Fail"
+            - "predicted_tags"     : list[str], tags assigned if it failed
+    
+    Returns:
+        dict: {
+            "total": int,
+            "passes": int,
+            "fails": int,
+            "pass_rate": float,
+            "fail_rate": float,
+            "avg_tags_per_failure": float,
+            "tag_distribution": { tag: count, ... }
+        }
+    """
+    total   = len(results)
+    passes  = sum(1 for r in results if r["predicted_pass_fail"] == "Pass")
+    fails   = total - passes
+
+    pass_rate = passes / total if total else 0.0
+    fail_rate = fails  / total if total else 0.0
+
+    # Average number of tags among failures
+    tags_per_fail = [len(r["predicted_tags"]) for r in results if r["predicted_pass_fail"] == "Fail"]
+    avg_tags = sum(tags_per_fail) / len(tags_per_fail) if tags_per_fail else 0.0
+
+    # Distribution of predicted tags across all failures
+    tag_counter = Counter()
+    for r in results:
+        if r["predicted_pass_fail"] == "Fail":
+            tag_counter.update(r["predicted_tags"])
+
+    metrics = {
+        "total": total,
+        "passes": passes,
+        "fails": fails,
+        "pass_rate": pass_rate,
+        "fail_rate": fail_rate,
+        "avg_tags_per_failure": avg_tags,
+        "tag_distribution": dict(tag_counter)
+    }
+
+    save_to_json("chatbot_metrics.json", metrics)
+    return metrics
+
 def print_evaluator_metrics(metrics):
     """
     Prints the precision, recall, and F1 scores for both pass/fail and tags.
@@ -109,15 +160,27 @@ def print_evaluator_metrics(metrics):
     Parameters:
         metrics (dict): The dictionary containing the pass/fail and tag classification metrics.
     """
+    print("Evaluator performance metrics:")
     # Print pass/fail metrics
-    print("Pass/Fail Metrics:")
+    print("Pass/Fail:")
     for metric, value in metrics["pass_fail_metrics"].items():
         print(f"{metric.capitalize():<9}: {value:.3f}")
     
     # Print tag classification metrics
-    print("\nTag Classification Metrics:")
+    print("Tag Classification:")
     for metric, value in metrics["tag_metrics"].items():
         print(f"{metric.capitalize():<9}: {value:.3f}")
 
-def chatbot_metrics(results):
-    pass
+def print_chatbot_metrics(metrics):
+    """
+    Nicely prints the chatbot performance metrics.
+    """
+    print("Chatbot performance metrics (per LLM):")
+    print(f"Total convos       : {metrics['total']}")
+    print(f"Passed             : {metrics['passes']}  ({metrics['pass_rate']:.3f})")
+    print(f"Failed             : {metrics['fails']}  ({metrics['fail_rate']:.3f})")
+    print(f"Avg tags per fail  : {metrics['avg_tags_per_failure']:.2f}\n")
+
+    print("Failure tag distribution:")
+    for tag, count in sorted(metrics["tag_distribution"].items(), key=lambda x: -x[1]):
+        print(f"{tag}: {count}")
