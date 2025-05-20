@@ -83,10 +83,7 @@ def process_example(idx, test_data, pass_fail_demos_text, tagging_demos_text, ta
         pass_fail_response = prompt_model(pass_fail_prompt)
         print(f"{idx}: {pass_fail_response}")
         
-        if "Pass" in pass_fail_response:
-            predicted_pass_fail = "Pass"
-            predicted_tags = []
-        elif "Fail" in pass_fail_response:
+        if "Fail" in pass_fail_response:
             predicted_pass_fail = "Fail"
             
             # Step 2: If it failed, predict hashtags (tags)
@@ -96,8 +93,8 @@ def process_example(idx, test_data, pass_fail_demos_text, tagging_demos_text, ta
             print(f"Tags: {tagging_response}")
             
             predicted_tags = extract_valid_hashtags(tagging_response, tags)
-        else:
-            predicted_pass_fail = "Pass*"
+        else: # assuming "Pass" if not "Fail"
+            predicted_pass_fail = "Pass"
             predicted_tags = []
 
         return {

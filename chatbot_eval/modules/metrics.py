@@ -9,7 +9,7 @@ def evaluator_metrics(results):
     Parameters:
         results (list): Each result is a dict with keys:
             "pass_fail"            : str, ground-truth "Pass" or "Fail"
-            "predicted_pass_fail"  : str, predicted "Pass"/"Fail"/"Unknown"
+            "predicted_pass_fail"  : str, predicted "Pass"/"Fail"
             "tags"                 : list[str], ground-truth tags (empty list if none)
             "predicted_tags"       : list[str], predicted tags
         
