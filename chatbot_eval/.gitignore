@@ -5,7 +5,4 @@ config.ini
 # Ignore all .json and .csv files
 *.json
 *.csv
-
-# But not the ones in the "config" folder
-!config/*.json
-!config/*.csv
+!config/valid_tags_sample.csv
