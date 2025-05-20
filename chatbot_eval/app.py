@@ -13,19 +13,19 @@ def main():
 
     # Setup
     demos = sample_demonstrations(demos)
-    test_data = test_data[:5]
+    test_data = test_data[:10]
     print(f"Loaded {len(demos)} demonstrations and {len(test_data)} test examples.")
     print(f"Example: {demos[0]}\n")
-
-    print("Distribution of demonstrations in dataset:")
-    print_failure_distribution(demos)
-    print_hashtag_distribution(demos)
     
     tags = get_tags()
     print(f"Valid hashtags: {tags}\n")
 
+    print("Distribution of demonstrations in dataset:")
+    print_failure_distribution(demos)
+    print_hashtag_distribution(demos, tags)
+
     # Test evaluator
-    run_tests(test_data, demos, tags)
+    # run_tests(test_data, demos, tags)
 
     # Report evaluator metrics
     results = read_from_json("results.json")

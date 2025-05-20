@@ -58,20 +58,33 @@ def print_failure_distribution(data) -> None:
     for status, count in pass_fail_counter:
         print(f"{status}: {count}")
 
-def print_hashtag_distribution(data) -> None:
+def print_hashtag_distribution(data: List, valid_tags: List[str]) -> None:
     """
-    Prints the distribution of hashtags in the dataset in descending order.
+    Prints the distribution of valid hashtags in the dataset in descending order,
+    including tags with zero occurrences.
     
-    Expects the data to be a list of DataItem objects with a 'expected' attribute.
-    The attribute should contain a list of hashtags.
+    Parameters:
+        data (list): List of DataItem objects, each with an 'expected' list of hashtags.
+        valid_tags (list): The full list of tags we want to track.
     """
-    hashtag_counter = Counter()
+    # Initialize counts for every valid tag
+    counts = {tag: 0 for tag in valid_tags}
+
+    # Count only valid tags
     for item in data:
-        hashtag_counter.update(item.expected)
-    hashtag_counter = hashtag_counter.most_common()
+        tags = item.expected or []
+        for tag in tags:
+            if tag in counts:
+                counts[tag] += 1
+
+    # Sort tags by count descending, then name
+    sorted_counts = sorted(
+        counts.items(),
+        key=lambda kv: (-kv[1], kv[0])
+    )
 
     print("Hashtag distribution in dataset (sorted by count):")
-    for tag, count in hashtag_counter:
+    for tag, count in sorted_counts:
         print(f"{tag}: {count}")
 
 # if __name__ == "__main__":
