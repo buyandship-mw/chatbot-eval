@@ -3,14 +3,13 @@ from modules.data      import get_tags, print_failure_distribution, print_hashta
 from modules.loaders.csv_loader import CSVDataLoader
 from modules.sampling import sample_demonstrations
 from modules.runner    import run_tests
-from modules.metrics   import evaluator_metrics
-from modules.reporting import print_metrics
+from modules.metrics   import evaluator_metrics, print_evaluator_metrics
 
 def main():
     # Load data
     loader = CSVDataLoader()
-    demos = loader.load("dataset-train.csv")
-    test_data = loader.load("dataset-test.csv")
+    demos = loader.load("demos.csv")
+    test_data = loader.load("testset.csv")
 
     # Setup
     demos = sample_demonstrations(demos)
@@ -29,9 +28,9 @@ def main():
     run_tests(test_data, demos, tags)
 
     # Report evaluator metrics
-    # results = read_from_json("results.json")
-    # metrics = evaluator_metrics(results)
-    # print_metrics(metrics)
+    results = read_from_json("results.json")
+    metrics = evaluator_metrics(results)
+    print_evaluator_metrics(metrics)
 
 if __name__ == "__main__":
     main()
