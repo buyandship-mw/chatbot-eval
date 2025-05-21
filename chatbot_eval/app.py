@@ -8,33 +8,33 @@ from modules.metrics   import evaluator_metrics, chatbot_metrics, print_evaluato
 def main():
     # Load data
     loader = CSVDataLoader()
-    demos = loader.load("demos.csv")
-    test_data = loader.load("testset.csv")
+    demos = loader.load("demo.csv")
+    test_data = loader.load("test.csv")
 
-    # Setup
-    demos = sample_demonstrations(demos)
-    test_data = test_data[:10]
-    print(f"Loaded {len(demos)} demonstrations and {len(test_data)} test examples.")
-    print(f"Example: {demos[0]}\n")
+    # # Setup
+    # demos = sample_demonstrations(demos)
+    # test_data = test_data[:10]
+    # print(f"Loaded {len(demos)} demonstrations and {len(test_data)} test examples.")
+    # print(f"Example: {demos[0]}\n")
     
-    tags = get_tags()
-    print(f"Valid hashtags: {tags}\n")
+    # tags = get_tags()
+    # print(f"Valid hashtags: {tags}\n")
 
-    print("Analyzing demonstrations data...")
-    print_failure_distribution(demos)
-    print_hashtag_distribution(demos, tags)
-    print()
+    # print("Analyzing demonstrations data...")
+    # print_failure_distribution(demos)
+    # print_hashtag_distribution(demos, tags)
+    # print()
 
-    # Test evaluator
-    # run_tests(test_data, demos, tags)
+    # # Test evaluator
+    # # run_tests(test_data, demos, tags)
 
-    # Report evaluator metrics
-    results = read_from_json("results.json")
-    metrics = evaluator_metrics(results)
-    print_evaluator_metrics(metrics)
-    print()
-    chatbot_met = chatbot_metrics(results)
-    print_chatbot_metrics(chatbot_met)
+    # # Report evaluator metrics
+    # results = read_from_json("results.json")
+    # metrics = evaluator_metrics(results)
+    # print_evaluator_metrics(metrics)
+    # print()
+    # chatbot_met = chatbot_metrics(results)
+    # print_chatbot_metrics(chatbot_met)
 
 if __name__ == "__main__":
     main()
