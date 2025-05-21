@@ -2,11 +2,11 @@
 import os
 import csv
 from typing import List
-from modules.data import DataItem, DataLoader
+from modules.data import ConvoItem, ConvoLoader
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
-class CSVDataLoader(DataLoader):
+class CSVConvoLoader(ConvoLoader):
     def __init__(self,
                  data_dir: str = "data",
                  text_col: str = "conversation_part",
@@ -19,9 +19,9 @@ class CSVDataLoader(DataLoader):
 
     from typing import List
 
-    def load(self, filename: str) -> List[DataItem]:
+    def load(self, filename: str) -> List[ConvoItem]:
         path = os.path.join(self.base, filename)
-        items: List[DataItem] = []
+        items: List[ConvoItem] = []
         with open(path, newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -44,6 +44,6 @@ class CSVDataLoader(DataLoader):
                 # 3) Fetch pass/fail (allowing it to be None if column truly missing)
                 pass_fail = row.get(self.pass_fail_col)
 
-                items.append(DataItem(text=text, expected=tags, pass_fail=pass_fail))
+                items.append(ConvoItem(text=text, expected=tags, pass_fail=pass_fail))
 
         return items
