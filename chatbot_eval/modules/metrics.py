@@ -4,77 +4,97 @@ from modules.io import read_from_json, save_to_json
 def evaluator_metrics(results, beta2=4.0):
     """
     Evaluates tag classification results by calculating precision, recall,
-    and a weighted F-score (recall weighted 4× as important as precision,
-    i.e. β² = 4), macro-averaged over all examples (including those with no tags).
+    and a weighted F-score (recall weighted β² as important as precision),
+    macro-averaged over:
+      1) all examples
+      2) only the 'fail' examples (where there is at least one true tag)
 
     Parameters:
         results (list): Each result is a dict with keys:
             "tags"           : list[str], ground-truth tags (empty list if none)
             "predicted_tags" : list[str], predicted tags (empty list if none)
-        beta2 (float):    β² value for F_β; default=4.0 (so recall counts 4×)
+        beta2 (float):    β² value for F_β; default=4.0
 
     Returns:
         dict: {
-            "precision": …,   # macro-average precision
-            "recall"   : …,   # macro-average recall
-            "f_beta"   : …    # macro-average F_{β} with β² = 4
+            "precision"      : float, # over all examples
+            "recall"         : float,
+            "f_beta"         : float,
+            "fail_precision" : float, # over only examples with tags
+            "fail_recall"    : float,
+            "fail_f_beta"    : float
         }
     """
     total_p = total_r = total_f = 0.0
+    total_p_fail = total_r_fail = total_f_fail = 0.0
     n = len(results)
+    n_fail = 0
 
     for result in results:
         true_tags = result["tags"]
         pred_tags = result["predicted_tags"]
 
-        # count true positives, false positives, false negatives
-        tp = fp = fn = 0
+        # build count maps
         true_counts = {}
-        pred_counts = {}
         for t in true_tags:
             true_counts[t] = true_counts.get(t, 0) + 1
+        pred_counts = {}
         for t in pred_tags:
             pred_counts[t] = pred_counts.get(t, 0) + 1
 
-        # TP & FP
+        # compute TP, FP, FN
+        tp = fp = fn = 0
         for tag, cnt in pred_counts.items():
             if tag in true_counts:
                 tp += min(cnt, true_counts[tag])
                 fp += max(0, cnt - true_counts[tag])
             else:
                 fp += cnt
-
-        # FN
         for tag, cnt in true_counts.items():
             if tag not in pred_counts:
                 fn += cnt
             else:
                 fn += max(0, cnt - pred_counts[tag])
 
-        # if truly no tags and predicted no tags → perfect
+        # edge‐cases: no true & no pred → perfect; no true tags → recall=1 if none missed
         if not true_counts and not pred_counts:
             p = r = 1.0
         else:
             p = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-            # if there are zero true tags, define recall=1 (you missed none)
             r = tp / (tp + fn) if (tp + fn) > 0 else 1.0
 
-        # weighted F_beta
+        # F_β
         f = ((1 + beta2) * p * r) / (beta2 * p + r) if (beta2 * p + r) > 0 else 0.0
 
+        # accumulate overall
         total_p += p
         total_r += r
         total_f += f
 
-    # macro-averages
+        # accumulate only failures (where there was at least one true tag)
+        if true_tags:
+            total_p_fail += p
+            total_r_fail += r
+            total_f_fail += f
+            n_fail += 1
+
+    # macro‐average overall
     avg_p = total_p / n if n > 0 else 0.0
     avg_r = total_r / n if n > 0 else 0.0
     avg_f = total_f / n if n > 0 else 0.0
 
+    # macro‐average on fail subset
+    avg_p_fail = total_p_fail / n_fail if n_fail > 0 else 0.0
+    avg_r_fail = total_r_fail / n_fail if n_fail > 0 else 0.0
+    avg_f_fail = total_f_fail / n_fail if n_fail > 0 else 0.0
+
     metrics = {
-        "precision": avg_p,
-        "recall"   : avg_r,
-        "f_beta"   : avg_f,   # F_{β} with β^2 = 2
+        "precision"      : avg_p,
+        "recall"         : avg_r,
+        "f_beta"         : avg_f,
+        "fail_precision": avg_p_fail,
+        "fail_recall"   : avg_r_fail,
+        "fail_f_beta"   : avg_f_fail,
     }
 
     # Persist to disk if needed
