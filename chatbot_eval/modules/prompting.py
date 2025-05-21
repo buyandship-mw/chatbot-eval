@@ -45,27 +45,35 @@ def construct_prompt_pass_fail(demonstrations_text, conversation):
     # print(prompt)
     return prompt
 
-def construct_prompt_tagging(demonstrations_text, conversation, tag_list):
+def construct_prompt_tagging(
+    demonstrations_text: str,
+    conversation: str,
+    tag_definitions: dict[str, str]
+) -> str:
     """
-    Constructs the prompt to select hashtags for a failed conversation.
-    
-    Parameters:
-        demonstrations_text (str): The formatted text of the demonstrations.
-        conversation (str): The text of the conversation to classify.
-        tag_list (list): The full list of valid hashtags for prediction.
-    
-    Returns:
-        str: The constructed prompt for selecting hashtags.
+    Constructs a prompt to select hashtags, including each
+    tag’s description right in the guidelines block.
     """
-    bulletpoint_tag_list = "\n".join([f"- {tag}" for tag in tag_list])
-    prompt = (
-        f"Below are conversations and the hashtags that describe them:\n{demonstrations_text}\n"
-        "Select the hashtags from the options below that are most applicable to the conversation. "
-        "Return only the selected hashtags separated by commas (no additional text).\n"
-        f"Conversation: {conversation}\n"
-        f"Options:\n{bulletpoint_tag_list}\n"
+    # 1) Build the annotation guidelines block
+    guidelines = "\n".join(
+        f"- {tag}: {desc}"
+        for tag, desc in tag_definitions.items()
     )
-    # print(prompt)
+
+    # 2) Build the bare-options list the model will pick from
+    options = "\n".join(f"- {tag}" for tag in tag_definitions)
+
+    prompt = (
+        "Use the following annotation guidelines when tagging a conversation:\n"
+        f"{guidelines}\n\n"
+        "Here are some example conversations already tagged:\n"
+        f"{demonstrations_text}\n\n"
+        "Now, read the conversation below and select all hashtags from the list "
+        "that apply. Return only the comma-separated hashtags (no extra text).\n\n"
+        f"Conversation:\n{conversation}\n\n"
+        "Available tags:\n"
+        f"{options}\n"
+    )
     return prompt
 
 def process_example(idx, test_data, pass_fail_demos_text, tagging_demos_text, tags):

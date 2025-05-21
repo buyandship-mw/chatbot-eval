@@ -20,27 +20,22 @@ class DataLoader(ABC):
         """
         ...
 
-# Could modify this to extract tags from training data instead
-def get_tags(csv_filename: str = "valid_tags.csv") -> list:
+def load_tag_definitions(csv_filename: str) -> dict[str, str]:
     """
-    Load the list of valid hashtags from a CSV file.
-    The CSV file should contain one hashtag per line.
+    Reads a CSV with two columns (tag,description) and returns
+    a dict mapping each hashtag to its one-line guideline.
     """
     # build a path to tags.csv in the same directory as this script
     base_dir = os.path.join(os.path.dirname(__file__), "../config/")
     path = os.path.join(base_dir, csv_filename)
 
-    tags = []
-    # open as a simple one-column CSV (no header)
-    with open(path, newline="", encoding="utf-8") as csvfile:
-        reader = csv.reader(csvfile)
+    definitions = {}
+    with open(path, newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
         for row in reader:
-            # skip empty lines
-            if not row:
-                continue
-            # take the first column and strip whitespace/newlines
-            tags.append(row[0].strip())
-    return tags
+            tag, desc = row
+            definitions[tag.strip()] = desc.strip()
+    return definitions
 
 def print_failure_distribution(data) -> None:
     """

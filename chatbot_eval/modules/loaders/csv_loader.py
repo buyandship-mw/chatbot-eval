@@ -9,7 +9,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 class CSVDataLoader(DataLoader):
     def __init__(self,
                  data_dir: str = "data",
-                 text_col: str = "modified_conversation_body",
+                 text_col: str = "conversation_part",
                  label_col: str = "ai_issue_tag",
                  pass_fail_col: str = "ai_performance"):  # New column for pass/fail
         self.base = os.path.join(PROJECT_ROOT, data_dir)
