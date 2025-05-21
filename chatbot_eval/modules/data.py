@@ -7,16 +7,16 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple, Optional
 
 @dataclass
-class DataItem:
+class ConvoItem:
     text: str
     pass_fail: Optional[str] = None
     expected: Optional[str] = None
 
-class DataLoader(ABC):
+class ConvoLoader(ABC):
     @abstractmethod
-    def load(self, filename: str) -> List[DataItem]:
+    def load(self, filename: str) -> List[ConvoItem]:
         """
-        Load items from `<data_dir>/<filename>` into a list of DataItem.
+        Load items from `<data_dir>/<filename>` into a list of ConvoItem.
         """
         ...
 
@@ -41,7 +41,7 @@ def print_failure_distribution(data) -> None:
     """
     Prints the distribution of pass/fail statuses in the dataset in descending order.
     
-    Expects the data to be a list of DataItem objects with a 'pass_fail' attribute.
+    Expects the data to be a list of ConvoItem objects with a 'pass_fail' attribute.
     """
     pass_fail_counter = Counter()
     for item in data:
@@ -59,7 +59,7 @@ def print_hashtag_distribution(data: List, valid_tags: List[str]) -> None:
     including tags with zero occurrences.
     
     Parameters:
-        data (list): List of DataItem objects, each with an 'expected' list of hashtags.
+        data (list): List of ConvoItem objects, each with an 'expected' list of hashtags.
         valid_tags (list): The full list of tags we want to track.
     """
     # Initialize counts for every valid tag
